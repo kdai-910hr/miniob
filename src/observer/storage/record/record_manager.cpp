@@ -430,6 +430,7 @@ RC PaxRecordPageHandler::insert_record(const char *data, RID *rid)
   Bitmap bitmap(bitmap_, page_header_->record_capacity);
   int    index = bitmap.next_unsetted_bit(0);
   auto col_num_ = page_header_->column_num;
+  page_header_->record_num++;
   bitmap.set_bit(index);
   RC rc = log_handler_.insert_record(frame_, RID(get_page_num(), index), data);
   if (OB_FAIL(rc)) {
@@ -437,7 +438,6 @@ RC PaxRecordPageHandler::insert_record(const char *data, RID *rid)
     // return rc; // ignore errors
   }
   auto offset = 0;
-  page_header_->record_num++;
   for (int i = 0;i < col_num_;i++) {
     
     char *record_data = get_field_data(index, i);
