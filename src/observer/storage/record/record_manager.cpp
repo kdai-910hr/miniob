@@ -439,7 +439,6 @@ RC PaxRecordPageHandler::insert_record(const char *data, RID *rid)
   }
   auto offset = 0;
   for (int i = 0;i < col_num_;i++) {
-    
     char *record_data = get_field_data(index, i);
     auto data_len_ = get_field_len(i);
     memcpy(record_data, data + offset, data_len_);

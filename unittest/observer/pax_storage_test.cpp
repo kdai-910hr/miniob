@@ -117,6 +117,7 @@ TEST_P(PaxRecordFileScannerWithParam, test_file_iterator)
   ASSERT_EQ(rc, RC::SUCCESS);
 
   count = 0;
+  std::cout << strrc(record_scanner.next(record)) << std::endl;
   while (OB_SUCC(rc = record_scanner.next(record))) {
     count++;
   }
