@@ -64,7 +64,7 @@ RC AggregateVecPhysicalOperator::open(Trx *trx)
     return rc;
   }
 
-  while (OB_SUCC(rc = child.next(chunk_))) {
+  if (OB_SUCC(rc = child.next(chunk_))) {
     for (size_t aggr_idx = 0; aggr_idx < aggregate_expressions_.size(); aggr_idx++) {
       Column column;
       value_expressions_[aggr_idx]->get_column(chunk_, column);
@@ -101,7 +101,11 @@ void AggregateVecPhysicalOperator::update_aggregate_state(void *state, const Col
 RC AggregateVecPhysicalOperator::next(Chunk &chunk)
 {
   // your code here
-  exit(-1);
+  for (auto i = 0;i < aggr_values_.size();i++) {
+    output_chunk_.column_ptr(i)->append_one((char *)aggr_values_.at(i));
+  }
+  chunk.reference(output_chunk_);
+  return RC::SUCCESS;
 }
 
 RC AggregateVecPhysicalOperator::close()

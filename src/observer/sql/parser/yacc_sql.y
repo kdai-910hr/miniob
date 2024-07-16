@@ -531,10 +531,11 @@ expression:
     | '*' {
       $$ = new StarExpr();
     }
-    // TODO
-    | SUM LBRACE expression RBRACE {
-      $$ = create_aggregate_expression("SUM", $3, sql_string, &@$);
+    | ID LBRACE expression RBRACE {
+      $$ = create_aggregate_expression($1, $3, sql_string, &@$);
+      free($1);
     }
+    // your code here
     ;
 
 rel_attr:
@@ -660,14 +661,13 @@ comp_op:
     | NE { $$ = NOT_EQUAL; }
     ;
 
-// TODO
+// your code here
 group_by:
     /* empty */
     {
       $$ = nullptr;
     }
-    | GROUP BY expression_list
-    {
+    | GROUP BY expression_list {
       $$ = $3;
     }
     ;

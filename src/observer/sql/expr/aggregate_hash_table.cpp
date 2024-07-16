@@ -15,7 +15,38 @@ See the Mulan PSL v2 for more details. */
 RC StandardAggregateHashTable::add_chunk(Chunk &groups_chunk, Chunk &aggrs_chunk)
 {
   // your code here
-  exit(-1);
+  auto len_row = groups_chunk.rows();
+  for (int i = 0; i < len_row; i++) {
+    auto group_row = std::vector<Value>();
+    for (int j = 0; j < groups_chunk.column_num(); j++) {
+      group_row.push_back(groups_chunk.get_value(j, i));
+    }
+    auto aggr_row = std::vector<Value>();
+    for (int j = 0; j < aggrs_chunk.column_num(); j++) {
+      aggr_row.push_back(aggrs_chunk.get_value(j, i));
+    }
+    auto it = aggr_values_.find(group_row);
+    if (it == aggr_values_.end()) {
+      aggr_values_[group_row] = aggr_row;
+    } else {
+      auto &aggrs = it->second;
+      for (int j = 0; j < aggrs.size(); j++) {
+        auto aggr = aggrs[j];
+        switch (aggr.attr_type())
+        {
+        case AttrType::INTS:
+          aggr.set_int(aggr.get_int() + aggr_row[j].get_int());
+          break;
+        case AttrType::FLOATS:
+          aggr.set_float(aggr.get_float() + aggr_row[j].get_float());
+          break;
+        default:
+          break;
+        }
+      }
+    } 
+  }
+  return RC::SUCCESS;
 }
 
 void StandardAggregateHashTable::Scanner::open_scan()
