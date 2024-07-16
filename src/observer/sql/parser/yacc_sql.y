@@ -535,20 +535,8 @@ expression:
     | '*' {
       $$ = new StarExpr();
     }
-    | COUNT LBRACE expression RBRACE {
-      $$ = create_aggregate_expression("count", $3, sql_string, &@$);
-    }
-    | SUM LBRACE expression RBRACE {
-      $$ = create_aggregate_expression("sum", $3, sql_string, &@$);
-    }
-    | AVG LBRACE expression RBRACE {
-      $$ = create_aggregate_expression("avg", $3, sql_string, &@$);
-    }
-    | MAX LBRACE expression RBRACE {
-      $$ = create_aggregate_expression("max", $3, sql_string, &@$);
-    }
-    | MIN LBRACE expression RBRACE {
-      $$ = create_aggregate_expression("min", $3, sql_string, &@$);
+    | ID LBRACE expression RBRACE {
+      $$ = create_aggregate_expression(ID, $3, sql_string, &@$);
     }
     // your code here
     ;
