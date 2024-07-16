@@ -500,8 +500,8 @@ RC PaxRecordPageHandler::get_record(const RID &rid, Record &record)
   record.set_rid(rid);
   auto recordRS = page_header_->record_real_size;
   char* data_ = (char*)malloc(recordRS);
-  int offset = 0;
-  for (auto i = 0;i < page_header_->column_num;i++) {
+  auto offset = 0;
+  for (auto i = 0;i < col_num_;i++) {
     auto field_len_ = get_field_len(i);
     memcpy(data_ + offset, get_field_data(rid.slot_num, i), field_len_);
     offset += field_len_;
