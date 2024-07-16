@@ -4,7 +4,7 @@
 ./deps/jsoncpp
 ./deps/benchmark
 .build_debug/bin/*.log
-./*.log
+./*.log.*
 .vscode
 !.vscode/tasks.json
 !.vscode/launch.json
