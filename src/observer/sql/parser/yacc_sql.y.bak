@@ -465,7 +465,6 @@ select_stmt:        /*  select 语句的语法解析树*/
         $$->selection.conditions.swap(*$5);
         delete $5;
       }
-
       if ($6 != nullptr) {
         $$->selection.group_by.swap(*$6);
         delete $6;
@@ -531,10 +530,10 @@ expression:
     | '*' {
       $$ = new StarExpr();
     }
-    // TODO
     | SUM LBRACE expression RBRACE {
       $$ = create_aggregate_expression("SUM", $3, sql_string, &@$);
     }
+    // your code here
     ;
 
 rel_attr:
@@ -660,14 +659,13 @@ comp_op:
     | NE { $$ = NOT_EQUAL; }
     ;
 
-// TODO
+// your code here
 group_by:
     /* empty */
     {
       $$ = nullptr;
     }
-    | GROUP BY expression_list
-    {
+    | GROUP BY expression_list {
       $$ = $3;
     }
     ;
