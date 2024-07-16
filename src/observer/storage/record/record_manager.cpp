@@ -485,7 +485,7 @@ RC PaxRecordPageHandler::get_record(const RID &rid, Record &record)
 {
   // your code here
   // exit(-1);
-  int col_num_ = page_header_->column_num;
+  // int col_num_ = page_header_->column_num;
   if (rid.slot_num >= page_header_->record_capacity) {
     LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, frame=%s, page_header=%s",
               rid.slot_num, frame_->to_string().c_str(), page_header_->to_string().c_str());
@@ -497,16 +497,16 @@ RC PaxRecordPageHandler::get_record(const RID &rid, Record &record)
     LOG_ERROR("Invalid slot_num:%d, slot is empty, page_num %d.", rid.slot_num, frame_->page_num());
     return RC::RECORD_NOT_EXIST;
   }
-  int recordRS = page_header_->record_real_size;
-  char* data_ = (char*)malloc(recordRS);
+  // int recordRS = page_header_->record_real_size;
+  char* data_ = (char*)malloc(page_header_->record_real_size);
   int offset = 0;
-  for (int i = 0;i < col_num_;i++) {
+  for (int i = 0;i < page_header_->column_num;i++) {
     int field_len_ = get_field_len(i);
     memcpy(data_ + offset, get_field_data(rid.slot_num, i), field_len_);
     offset += field_len_;
   }
   record.set_rid(rid);
-  record.set_data_owner(data_, recordRS);
+  record.set_data_owner(data_, page_header_->column_num);
   return RC::SUCCESS;
 //   if (rid.slot_num >= page_header_->record_capacity) {
 //     LOG_ERROR("Invalid slot_num %d, exceed page's record capacity, frame=%s, page_header=%s",
