@@ -516,9 +516,9 @@ RC PaxRecordPageHandler::get_chunk(Chunk &chunk)
   // your code here
   // exit(-1);
   auto col_num_ = chunk.column_num();
-  if (col_num_ == 0) {
-    return RC::RECORD_EOF;
-  }
+  // if (col_num_ == 0) {
+  //   return RC::RECORD_EOF;
+  // }
   Bitmap bitmap(bitmap_, page_header_->record_capacity);
   for (auto i = 0;i < col_num_;i++) {
     auto cur_col_ = chunk.column_ptr(i);

@@ -58,7 +58,7 @@ TEST_P(PaxRecordFileScannerWithParam, test_file_iterator)
   table_meta.fields_[0].attr_type_ = AttrType::INTS;
   table_meta.fields_[0].attr_len_  = 4;
   table_meta.fields_[0].field_id_ = 0;
-  table_meta.fields_[1].attr_type_ = AttrType::INTS;
+  table_meta.fields_[1].attr_type_ = AttrType::FLOATS;
   table_meta.fields_[1].attr_len_  = 4;
   table_meta.fields_[1].field_id_ = 1;
 
@@ -117,7 +117,6 @@ TEST_P(PaxRecordFileScannerWithParam, test_file_iterator)
   ASSERT_EQ(rc, RC::SUCCESS);
 
   count = 0;
-  std::cout << strrc(record_scanner.next(record)) << std::endl;
   while (OB_SUCC(rc = record_scanner.next(record))) {
     count++;
   }
