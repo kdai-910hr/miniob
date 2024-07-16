@@ -111,11 +111,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         LE
         GE
         NE
-        COUNT
         SUM
-        AVG
-        MAX
-        MIN
 
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
@@ -534,20 +530,8 @@ expression:
     | '*' {
       $$ = new StarExpr();
     }
-    | COUNT LBRACE expression RBRACE {
-      $$ = create_aggregate_expression("COUNT", $3, sql_string, &@$);
-    }
     | SUM LBRACE expression RBRACE {
       $$ = create_aggregate_expression("SUM", $3, sql_string, &@$);
-    }
-    | AVG LBRACE expression RBRACE {
-      $$ = create_aggregate_expression("AVG", $3, sql_string, &@$);
-    }
-    | MAX LBRACE expression RBRACE {
-      $$ = create_aggregate_expression("MAX", $3, sql_string, &@$);
-    }
-    | MIN LBRACE expression RBRACE {
-      $$ = create_aggregate_expression("MIN", $3, sql_string, &@$);
     }
     // your code here
     ;
