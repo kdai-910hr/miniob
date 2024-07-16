@@ -523,12 +523,12 @@ RC PaxRecordPageHandler::get_chunk(Chunk &chunk)
   for (auto i = 0;i < col_num_;i++) {
     auto cur_col_ = chunk.column_ptr(i);
     auto col_id_ = chunk.column_ids(i);
-    // if (col_id_ >= col_num_) {
-    //   return RC::RECORD_NOT_EXIST;
-    // }
-    // cur_col_->append(get_field_data(0, col_id_), page_header_->record_num / page_header_->column_num);
-    for (auto i = 0;i < page_header_->record_capacity;i+=1) {
-      if (bitmap.get_bit(i)) {
+
+    for (auto i = 0;;i+=1) {
+      auto idx = bitmap.get_bit(i);
+      if (idx == -1) {
+        break;
+      } else if (idx == 1) {
         cur_col_->append_one(get_field_data(i, col_id_));
       }
     }
