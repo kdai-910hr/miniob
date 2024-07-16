@@ -425,26 +425,28 @@ RC PaxRecordPageHandler::insert_record(const char *data, RID *rid)
     LOG_WARN("Page is full, page_num %d:%d.", disk_buffer_pool_->file_desc(), frame_->page_num());
     return RC::RECORD_NOMEM;
   }
-
-  // 找到空闲位置
-  Bitmap bitmap(bitmap_, page_header_->record_capacity);
+   Bitmap bitmap(bitmap_, page_header_->record_capacity);
   int    index = bitmap.next_unsetted_bit(0);
-  auto col_num_ = page_header_->column_num;
-  page_header_->record_num++;
   bitmap.set_bit(index);
+  page_header_->record_num++;
+
+
+  // 写入日志
   RC rc = log_handler_.insert_record(frame_, RID(get_page_num(), index), data);
   if (OB_FAIL(rc)) {
     LOG_ERROR("Failed to insert record. page_num %d:%d. rc=%s", disk_buffer_pool_->file_desc(), frame_->page_num(), strrc(rc));
     // return rc; // ignore errors
   }
-  auto offset = 0;
-  for (int i = 0;i < col_num_;i++) {
-    char *record_data = get_field_data(index, i);
-    auto data_len_ = get_field_len(i);
-    memcpy(record_data, data + offset, data_len_);
-    offset += data_len_;
+
+  // 获取 column_index
+  // int *column_index = reinterpret_cast<int *>(frame_->data() + page_header_->col_idx_offset);
+  int offset = 0;
+  for (int col_index = 0; col_index < page_header_->column_num; ++col_index) {
+    char *field_data = get_field_data(index, col_index);
+    int field_len = get_field_len(col_index);
+    memcpy(field_data, data + offset, field_len);
+    offset += field_len;
   }
-  
 
   frame_->mark_dirty();
 
@@ -453,8 +455,37 @@ RC PaxRecordPageHandler::insert_record(const char *data, RID *rid)
     rid->slot_num = index;
   }
 
-  // LOG_TRACE("Insert record. rid page_num=%d, slot num=%d", get_page_num(), index);
+    // LOG_TRACE("Insert record. rid page_num=%d, slot num=%d", get_page_num(), index);
   return RC::SUCCESS;
+  // 找到空闲位置
+  // Bitmap bitmap(bitmap_, page_header_->record_capacity);
+  // int    index = bitmap.next_unsetted_bit(0);
+  // auto col_num_ = page_header_->column_num;
+  // page_header_->record_num++;
+  // bitmap.set_bit(index);
+  // RC rc = log_handler_.insert_record(frame_, RID(get_page_num(), index), data);
+  // if (OB_FAIL(rc)) {
+  //   LOG_ERROR("Failed to insert record. page_num %d:%d. rc=%s", disk_buffer_pool_->file_desc(), frame_->page_num(), strrc(rc));
+  //   // return rc; // ignore errors
+  // }
+  // auto offset = 0;
+  // for (int i = 0;i < col_num_;i++) {
+  //   char *record_data = get_field_data(index, i);
+  //   auto data_len_ = get_field_len(i);
+  //   memcpy(record_data, data + offset, data_len_);
+  //   offset += data_len_;
+  // }
+  
+
+  // frame_->mark_dirty();
+
+  // if (rid) {
+  //   rid->page_num = get_page_num();
+  //   rid->slot_num = index;
+  // }
+
+  // // LOG_TRACE("Insert record. rid page_num=%d, slot num=%d", get_page_num(), index);
+  // return RC::SUCCESS;
 }
 
 RC PaxRecordPageHandler::delete_record(const RID *rid)
