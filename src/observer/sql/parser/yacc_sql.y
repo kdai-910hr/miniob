@@ -469,7 +469,6 @@ select_stmt:        /*  select 语句的语法解析树*/
         $$->selection.conditions.swap(*$5);
         delete $5;
       }
-
       if ($6 != nullptr) {
         $$->selection.group_by.swap(*$6);
         delete $6;
@@ -535,8 +534,20 @@ expression:
     | '*' {
       $$ = new StarExpr();
     }
-    | ID LBRACE expression RBRACE {
-      $$ = create_aggregate_expression(ID, $3, sql_string, &@$);
+    | COUNT LBRACE expression RBRACE {
+      $$ = create_aggregate_expression("COUNT", $3, sql_string, &@$);
+    }
+    | SUM LBRACE expression RBRACE {
+      $$ = create_aggregate_expression("SUM", $3, sql_string, &@$);
+    }
+    | AVG LBRACE expression RBRACE {
+      $$ = create_aggregate_expression("AVG", $3, sql_string, &@$);
+    }
+    | MAX LBRACE expression RBRACE {
+      $$ = create_aggregate_expression("MAX", $3, sql_string, &@$);
+    }
+    | MIN LBRACE expression RBRACE {
+      $$ = create_aggregate_expression("MIN", $3, sql_string, &@$);
     }
     // your code here
     ;
