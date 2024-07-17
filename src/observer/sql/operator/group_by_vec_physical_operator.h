@@ -36,7 +36,7 @@ private:
   std::vector<Expression *> aggregate_expressions_; // 聚合表达式
   std::vector<Expression *> value_expressions_; // 聚合表达式的子计算表达式
   StandardAggregateHashTable hash_table_; // 每个分组的聚合结果
-  StandardAggregateHashTable::Scanner scanner_; // 扫描器
+  StandardAggregateHashTable::Scanner *scanner_; // 扫描器
   Chunk                     chunk_;
   Chunk                     output_chunk_;
 };

@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
-AggregateVecPhysicalOperator::AggregateVecPhysicalOperator(vector<Expression *> &&expressions)
+AggregateVecPhysicalOperator::AggregateVecPhysicalOperator(vector<Expression *> &&expressions) : flag_(false)
 {
   aggregate_expressions_ = std::move(expressions);
   value_expressions_.reserve(aggregate_expressions_.size());
@@ -64,7 +64,7 @@ RC AggregateVecPhysicalOperator::open(Trx *trx)
     return rc;
   }
 
-  if (OB_SUCC(rc = child.next(chunk_))) {
+  while (OB_SUCC(rc = child.next(chunk_))) {
     for (size_t aggr_idx = 0; aggr_idx < aggregate_expressions_.size(); aggr_idx++) {
       Column column;
       value_expressions_[aggr_idx]->get_column(chunk_, column);
@@ -87,7 +87,6 @@ RC AggregateVecPhysicalOperator::open(Trx *trx)
   if (rc == RC::RECORD_EOF) {
     rc = RC::SUCCESS;
   }
-
   return rc;
 }
 template <class STATE, typename T>
@@ -101,10 +100,14 @@ void AggregateVecPhysicalOperator::update_aggregate_state(void *state, const Col
 RC AggregateVecPhysicalOperator::next(Chunk &chunk)
 {
   // your code here
+  if (flag_) {
+    return RC::RECORD_EOF;
+  }
   for (auto i = 0;i < aggr_values_.size();i++) {
     output_chunk_.column_ptr(i)->append_one((char *)aggr_values_.at(i));
   }
   chunk.reference(output_chunk_);
+  flag_ = true;
   return RC::SUCCESS;
 }
 

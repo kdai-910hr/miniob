@@ -329,6 +329,7 @@ int CliServer::serve()
 
   SqlTaskHandler task_handler;
   while (started_ && !communicator.exit()) {
+    LOG_INFO("ZYF: waiting for communicator to exit.");
     rc = task_handler.handle_event(&communicator);
     if (OB_FAIL(rc)) {
       started_ = false;

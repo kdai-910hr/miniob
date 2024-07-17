@@ -13,7 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/aggregate_state.h"
 
 GroupByVecPhysicalOperator::GroupByVecPhysicalOperator(
-  std::vector<std::unique_ptr<Expression>> &&group_by_exprs, std::vector<Expression *> &&expressions): hash_table_(expressions), scanner_(&hash_table_) {
+  std::vector<std::unique_ptr<Expression>> &&group_by_exprs, std::vector<Expression *> &&expressions): hash_table_(expressions) {
   group_by_exprs_ = std::move(group_by_exprs);
   aggregate_expressions_ = std::move(expressions);
   value_expressions_.reserve(aggregate_expressions_.size());
@@ -69,7 +69,7 @@ RC GroupByVecPhysicalOperator::open(Trx* trx) {
     LOG_INFO("failed to open child operator. rc=%s", strrc(rc));
     return rc;
   }
-  if (OB_SUCC(rc = child.next(chunk_))) {
+  while (OB_SUCC(rc = child.next(chunk_))) {
     Chunk group_chunk;
     Chunk aggr_chunk;
     for (auto i = 0;i < group_by_exprs_.size();i++) {
@@ -84,7 +84,8 @@ RC GroupByVecPhysicalOperator::open(Trx* trx) {
     }
     hash_table_.add_chunk(group_chunk, aggr_chunk);
   }
-  scanner_.open_scan();
+  scanner_ = new StandardAggregateHashTable::Scanner(&hash_table_);
+  scanner_->open_scan();
   if (rc == RC::RECORD_EOF) {
     rc = RC::SUCCESS;
   }
@@ -92,9 +93,9 @@ RC GroupByVecPhysicalOperator::open(Trx* trx) {
 }
 
 RC GroupByVecPhysicalOperator::next(Chunk &chunk) {
-  RC rc = scanner_.next(output_chunk_);
-  if (rc == RC::RECORD_EOF) {
-    rc = RC::SUCCESS;
+  RC rc = scanner_->next(output_chunk_);
+  if (OB_FAIL(rc)) {
+    return rc;
   }
   chunk.reference(output_chunk_);
   return rc;
@@ -102,6 +103,6 @@ RC GroupByVecPhysicalOperator::next(Chunk &chunk) {
 
 RC GroupByVecPhysicalOperator::close() {
   children_[0]->close();
-  scanner_.close_scan();
+  scanner_->close_scan();
   return RC::SUCCESS;
 }
