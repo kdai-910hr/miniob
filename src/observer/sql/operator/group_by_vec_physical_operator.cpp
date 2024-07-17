@@ -99,3 +99,9 @@ RC GroupByVecPhysicalOperator::next(Chunk &chunk) {
   chunk.reference(output_chunk_);
   return rc;
 }
+
+RC GroupByVecPhysicalOperator::close() {
+  children_[0]->close();
+  scanner_.close_scan();
+  return RC::SUCCESS;
+}

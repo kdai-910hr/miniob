@@ -29,7 +29,7 @@ public:
 
   RC open(Trx *trx) override;
   RC next(Chunk &chunk) override;
-  RC close() override { return RC::UNIMPLENMENT; }
+  RC close() override;
 
 private:
   std::vector<std::unique_ptr<Expression>> group_by_exprs_; // 分组表达式
